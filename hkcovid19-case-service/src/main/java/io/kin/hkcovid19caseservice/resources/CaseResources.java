@@ -56,4 +56,10 @@ public class CaseResources {
 
 		return result;
 	}
+	
+	@RequestMapping("/getAll")
+	public List<Case> getAllCase() {
+		List<Case> caseList = caseRepository.getAllCase();
+	    return caseList;
+	}	
 }
