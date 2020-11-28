@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -19,49 +17,48 @@ import org.springframework.stereotype.Component;
 
 import com.mongodb.MongoException;
 
-import io.kin.hkcovid19caseservice.model.Case;
+import io.kin.hkcovid19caseservice.model.CasesSummary;
 
 @Component
-public class CaseRepositoryImpl implements CaseRepository {
+public class CasesSummaryRepositoryImpl implements CasesSummaryRepository {
 	@Autowired
 	MongoTemplate mongoTemplate;
 
-	
 	@Override
-	public boolean insertCase(Case c) {
+	public boolean insertCasesSummary(CasesSummary c) {
 		mongoTemplate.insert(c);
 		return false;
 	}
 
 	@Override
-	public Collection<Case> insertCase(Collection<Case> c) {
-		Collection<Case> in = new ArrayList<Case>();
+	public Collection<CasesSummary> insertCasesSummary(Collection<CasesSummary> c) {
+		Collection<CasesSummary> in = new ArrayList<CasesSummary>();
 		Query query = new Query();
 		query.fields().include("_id");
-		Set<Integer> caseNos = new HashSet<Integer>();
-		mongoTemplate.executeQuery(query, "case", new DocumentCallbackHandler() {
+		Set<String> asOfDates = new HashSet<String>();
+		mongoTemplate.executeQuery(query, "casesSummary", new DocumentCallbackHandler() {
 			@Override
 			public void processDocument(Document document) throws MongoException, DataAccessException {
-				caseNos.add((Integer) document.get("_id"));
+				asOfDates.add((String) document.get("_id"));
 			}
 		});
-		for (Case caseObj : c) {
-			if (!caseNos.contains(caseObj.getCaseNo()))
-				in.add(caseObj);
-		}
-		Collection<Case> r = mongoTemplate.insertAll(in);
+		for(CasesSummary casesSummaryObj : c) {
+			if(!asOfDates.contains(casesSummaryObj.getAsOfDate()))
+				in.add(casesSummaryObj);
+		}	
+		Collection<CasesSummary> r = mongoTemplate.insertAll(in);
 		return r;
 	}
 
 	@Override
-	public List<Case> getAllCase() {
-		return mongoTemplate.find(new Query(), Case.class);
+	public List<CasesSummary> getAllCasesSummary() {
+		return mongoTemplate.find(new Query(), CasesSummary.class);
 	}
 
 	@Override
-	public boolean isExists(Case c) {
-		Query query = new Query(Criteria.where("caseNo").is(c.getCaseNo()));
-		return mongoTemplate.exists(query, Case.class);
+	public boolean isExists(CasesSummary c) {
+		Query query = new Query(Criteria.where("asOfDate").is(c.getAsOfDate()));
+		return mongoTemplate.exists(query, CasesSummary.class);
 	}
 
 }
