@@ -1,7 +1,5 @@
 package io.kin.hkcovid19caseservice.model;
 
-import java.util.Date;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 

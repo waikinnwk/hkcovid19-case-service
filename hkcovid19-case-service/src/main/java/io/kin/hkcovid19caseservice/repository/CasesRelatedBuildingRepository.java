@@ -1,0 +1,14 @@
+package io.kin.hkcovid19caseservice.repository;
+
+import java.util.Collection;
+import java.util.List;
+
+import io.kin.hkcovid19caseservice.model.CasesRelatedBuildingDB;
+
+public interface CasesRelatedBuildingRepository {
+	Collection<CasesRelatedBuildingDB> insertCase(Collection<CasesRelatedBuildingDB> c);
+
+	List<CasesRelatedBuildingDB> getAllCaseRelatedBuilding();
+
+	List<CasesRelatedBuildingDB> getLatestCaseRelatedBuilding();
+}
