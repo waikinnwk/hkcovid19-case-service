@@ -57,4 +57,9 @@ public class CasesSummaryResources {
 		List<CasesSummary> casesSummaryList = casesSummaryRepository.getAllCasesSummary();
 		return casesSummaryList;
 	}
+
+	@RequestMapping("/getLatest")
+	public CasesSummary getLatestCasesSummary() {
+		return casesSummaryRepository.getLatestCasesSummary();
+	}
 }
