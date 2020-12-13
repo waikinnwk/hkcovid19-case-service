@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
 
 import io.kin.hkcovid19caseservice.model.CasesRelatedBuildingDB;
@@ -47,10 +48,10 @@ public class CasesSummaryRepositoryImpl implements CasesSummaryRepository {
 				asOfDates.add((String) document.get("_id"));
 			}
 		});
-		for(CasesSummary casesSummaryObj : c) {
-			if(!asOfDates.contains(casesSummaryObj.getAsOfDate()))
+		for (CasesSummary casesSummaryObj : c) {
+			if (!asOfDates.contains(casesSummaryObj.getAsOfDate()))
 				in.add(casesSummaryObj);
-		}	
+		}
 		Collection<CasesSummary> r = mongoTemplate.insertAll(in);
 		return r;
 	}
@@ -59,17 +60,17 @@ public class CasesSummaryRepositoryImpl implements CasesSummaryRepository {
 	public List<CasesSummary> getAllCasesSummary() {
 		return mongoTemplate.find(new Query(), CasesSummary.class);
 	}
-	
+
 	@Override
 	public CasesSummary getLatestCasesSummary() {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		Calendar cal = Calendar.getInstance();
 		Query query = new Query();
 		CasesSummary result = null;
-		while(result == null) {
+		while (result == null) {
 			query = new Query(Criteria.where("_id").is(sdf.format(cal.getTime())));
 			result = mongoTemplate.findOne(query, CasesSummary.class);
-			cal.add(Calendar.DATE,-1);
+			cal.add(Calendar.DATE, -1);
 		}
 		return result;
 	}

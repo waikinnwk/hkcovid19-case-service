@@ -66,20 +66,7 @@ public class CaseResources {
 	}	
 	
 	@RequestMapping("/getCaseBySymptomatic")
-	public Map<String,Integer> getCaseBySymptomatic() {
-		Map<String,Integer> resultMap = new HashMap<String,Integer>();
-		List<Case> caseList = caseRepository.getAllCase();
-		Integer s = 0;
-		Integer as = 0;
-		for(Case c : caseList) {
-			if("Asymptomatic".equalsIgnoreCase(c.getOnsetDate()))
-				as++;
-			else
-				s++;
-		}
-		resultMap.put("asymptomatic_case", as);
-		resultMap.put("symptomatic_case", s);
-		
-	    return resultMap;
+	public Map<String,Long> getCaseBySymptomatic() {		
+	    return caseRepository.getCaseBySymptomatic();
 	}	
 }
