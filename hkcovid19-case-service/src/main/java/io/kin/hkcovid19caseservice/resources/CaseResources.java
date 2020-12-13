@@ -2,7 +2,9 @@ package io.kin.hkcovid19caseservice.resources;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,5 +63,23 @@ public class CaseResources {
 	public List<Case> getAllCase() {
 		List<Case> caseList = caseRepository.getAllCase();
 	    return caseList;
+	}	
+	
+	@RequestMapping("/getCaseBySymptomatic")
+	public Map<String,Integer> getCaseBySymptomatic() {
+		Map<String,Integer> resultMap = new HashMap<String,Integer>();
+		List<Case> caseList = caseRepository.getAllCase();
+		Integer s = 0;
+		Integer as = 0;
+		for(Case c : caseList) {
+			if("Asymptomatic".equalsIgnoreCase(c.getOnsetDate()))
+				as++;
+			else
+				s++;
+		}
+		resultMap.put("asymptomatic_case", as);
+		resultMap.put("symptomatic_case", s);
+		
+	    return resultMap;
 	}	
 }
