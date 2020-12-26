@@ -13,9 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.DocumentCallbackHandler;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.ConditionalOperators;
+import org.springframework.data.mongodb.core.aggregation.ConditionalOperators.Cond;
+import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
@@ -69,6 +76,49 @@ public class CaseRepositoryImpl implements CaseRepository {
 		resultMap.put("total", all);
 		resultMap.put("asymptomatic_case", as);
 		resultMap.put("symptomatic_case", s);
+		return resultMap;
+	}
+
+	@Override
+	public Map<String, Long> getCaseByAge() {
+		Map<String, Long> resultMap = new HashMap<String, Long>();
+		TypedAggregation<Case> agg = Aggregation.newAggregation(Case.class,
+				Aggregation.bucket("age").withBoundaries(0, 18, 31, 41, 51, 65).withDefaultBucket("over65")
+						.andOutput("_id").count().as("count"));
+		AggregationResults<Document> result = mongoTemplate.aggregate(agg, Document.class);
+		result.getMappedResults().forEach(document -> resultMap.put(String.valueOf(document.get("_id")),
+				Long.valueOf(String.valueOf(document.get("count")))));
+		return resultMap;
+	}
+
+	@Override
+	public Map<String, Map<String, Long>> getCaseByMonth() {
+		Map<String, Map<String, Long>> resultMap = new HashMap<String, Map<String, Long>>();
+		Cond condOperation = ConditionalOperators.when(Criteria.where("caseClassification").is("Imported case"))
+				.then("Y").otherwise("N");
+		Aggregation agg = Aggregation.newAggregation(
+				Aggregation.project(Case.class).andExpression("year(reportDate)").as("year")
+						.andExpression("month(reportDate)").as("month").and(condOperation).as("importedcase"),
+				group(Fields.fields().and("year").and("month").and("importedcase")).count().as("count"));
+		AggregationResults<Document> result = mongoTemplate.aggregate(agg, "case", Document.class);
+		result.getMappedResults().forEach(document -> {
+			StringBuilder sb = new StringBuilder();
+			sb.append(String.valueOf(((Document) document.get("_id")).get("year")));
+			sb.append("-");
+			sb.append(String.valueOf(((Document) document.get("_id")).get("month")));
+			String monthKey = sb.toString();
+			Map<String, Long> monthMap = null;
+			if (resultMap.containsKey(monthKey))
+				monthMap = resultMap.get(monthKey);
+			else
+				monthMap = new HashMap<String, Long>();
+			if ("Y".equals(((Document) document.get("_id")).getString("importedcase")))
+				monthMap.put("importedcase", Long.valueOf(String.valueOf(document.get("count"))));
+			else
+				monthMap.put("localcase", Long.valueOf(String.valueOf(document.get("count"))));
+
+			resultMap.put(monthKey, monthMap);
+		});
 		return resultMap;
 	}
 

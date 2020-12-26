@@ -21,52 +21,58 @@ import io.kin.hkcovid19caseservice.repository.CaseRepository;
 public class CaseResources {
 	@Autowired
 	private CaseRepository caseRepository;
-	
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST, headers = "Accept=application/json")
-	public InsertResult addCase(
-			@RequestBody Case c) {
+	public InsertResult addCase(@RequestBody Case c) {
 		InsertResult result = new InsertResult();
 		try {
-			if(!caseRepository.isExists(c)) {
+			if (!caseRepository.isExists(c)) {
 				caseRepository.insertCase(c);
 				result.successResult();
-			}
-			else
+			} else
 				result.duplicateResult();
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			result.errorResult(e.getMessage());
 		}
 
 		return result;
 	}
-	
+
 	@RequestMapping(value = "/addMultiple", method = RequestMethod.POST, headers = "Accept=application/json")
-	public InsertResult addMultipleCase(
-			@RequestBody List<Case>  cList) {
+	public InsertResult addMultipleCase(@RequestBody List<Case> cList) {
 		InsertResult result = new InsertResult();
 		try {
 			Collection<Case> c = new ArrayList<Case>(cList);
 			caseRepository.insertCase(c);
 			result.successResult();
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			result.errorResult(e.getMessage());
 		}
 
 		return result;
 	}
-	
+
 	@RequestMapping("/getAll")
 	public List<Case> getAllCase() {
 		List<Case> caseList = caseRepository.getAllCase();
-	    return caseList;
-	}	
-	
+		return caseList;
+	}
+
 	@RequestMapping("/getCaseBySymptomatic")
-	public Map<String,Long> getCaseBySymptomatic() {		
-	    return caseRepository.getCaseBySymptomatic();
-	}	
+	public Map<String, Long> getCaseBySymptomatic() {
+		return caseRepository.getCaseBySymptomatic();
+	}
+
+	@RequestMapping("/getCaseByAge")
+	public Map<String, Long> getCaseByAge() {
+		return caseRepository.getCaseByAge();
+	}
+
+	@RequestMapping("/getCaseByMonth")
+	public Map<String, Map<String, Long>> getCaseByMonth() {
+		return caseRepository.getCaseByMonth();
+	}
+
 }

@@ -15,5 +15,9 @@ public interface CaseRepository {
 
 	Map<String, Long> getCaseBySymptomatic();
 
+	Map<String, Long> getCaseByAge();
+	
+	Map<String, Map<String, Long>> getCaseByMonth();
+
 	boolean isExists(Case c);
 }
