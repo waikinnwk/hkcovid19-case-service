@@ -76,6 +76,24 @@ public class CasesSummaryRepositoryImpl implements CasesSummaryRepository {
 	}
 
 	@Override
+	public List<CasesSummary> getLatest14CasesSummary() {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		List<CasesSummary> resultList = new ArrayList<CasesSummary>();
+		int s = 0;
+		while (resultList.size() < 14) {
+			List<String> criteriaList = new ArrayList<String>();
+			Calendar cal = Calendar.getInstance();
+			for (int i = s; i < s + 14; i++) {
+				cal.add(Calendar.DATE, i * -1);
+				criteriaList.add(sdf.format(cal.getTime()));
+			}
+			resultList = mongoTemplate.find(new Query(Criteria.where("_id").in(criteriaList)), CasesSummary.class);
+			s++;
+		}
+		return resultList;
+	}
+
+	@Override
 	public boolean isExists(CasesSummary c) {
 		Query query = new Query(Criteria.where("asOfDate").is(c.getAsOfDate()));
 		return mongoTemplate.exists(query, CasesSummary.class);

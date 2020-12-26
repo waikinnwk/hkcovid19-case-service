@@ -4,6 +4,7 @@ package io.kin.hkcovid19caseservice.resources;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -57,9 +58,12 @@ public class CasesRelatedBuildingResources {
 	public List<CasesRelatedBuilding> getLatestCasesRelatedBuilding() {
 		List<CasesRelatedBuildingDB> casesRelatedBuildingListDB = casesRelatedBuildingRepository.getLatestCaseRelatedBuilding();
 		List<CasesRelatedBuilding> casesRelatedBuildingList = new ArrayList<CasesRelatedBuilding>();
-		for(CasesRelatedBuildingDB db :casesRelatedBuildingListDB) {
-			casesRelatedBuildingList.add(db.toObj());
-		}
+		casesRelatedBuildingListDB.forEach(db -> casesRelatedBuildingList.add(db.toObj()));
 		return casesRelatedBuildingList;
+	}
+	
+	@RequestMapping("/getLatestDistrictCaseData")
+	public Map<String, Long> getLatestDistrictCaseData() {
+		return casesRelatedBuildingRepository.getLatestDistrictCaseData();
 	}
 }

@@ -15,6 +15,8 @@ public interface CasesSummaryRepository {
 	List<CasesSummary> getAllCasesSummary();
 
 	CasesSummary getLatestCasesSummary();
+	
+	public List<CasesSummary> getLatest14CasesSummary();
 
 	boolean isExists(CasesSummary c);
 }
