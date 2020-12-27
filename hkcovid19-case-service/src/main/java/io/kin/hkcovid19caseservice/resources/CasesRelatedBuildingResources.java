@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -35,7 +36,9 @@ public class CasesRelatedBuildingResources {
 	private CasesRelatedBuildingRepository casesRelatedBuildingRepository;
 	@Autowired
 	private ObjectMapper objectMapper;
-
+	@Value("#{environment.GET_CORRDINATE_URL}")
+	private String getCoordinateUrl;
+	
 	@RequestMapping(value = "/addMultiple", method = RequestMethod.POST, headers = "Accept=application/json")
 	public List<CasesRelatedBuilding> addMultipleCase(@RequestBody List<CasesRelatedBuilding> cList) {
 		InsertResult result = new InsertResult();
@@ -92,11 +95,10 @@ public class CasesRelatedBuildingResources {
 		});
 
 		RestTemplate restTemplate = new RestTemplate();
-		String url = "http://localhost:8090/buildinglocation/getCoordinate";
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> entity = new HttpEntity<String>(objectMapper.writeValueAsString(buildingLocationList),headers);
-		BuildingLocation[] coordinateResult = restTemplate.postForObject(url, entity, BuildingLocation[].class);
+		BuildingLocation[] coordinateResult = restTemplate.postForObject(getCoordinateUrl, entity, BuildingLocation[].class);
 		Map<String, BuildingLocation> map = new HashMap<String, BuildingLocation>();
 		for(BuildingLocation b:coordinateResult) {
 			map.put(b.getDistrict()+ "_"+ b.getBuildingName(), b);
