@@ -4,6 +4,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.grou
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,18 +37,18 @@ public class CasesRelatedBuildingRepositoryImpl implements CasesRelatedBuildingR
 	@Override
 	public Collection<CasesRelatedBuildingDB> insertCase(Collection<CasesRelatedBuildingDB> c) {
 		Collection<CasesRelatedBuildingDB> in = new ArrayList<CasesRelatedBuildingDB>();
+
 		Query query = new Query();
-		query.fields().include("_id");
-		Set<CasesRelatedBuildingDBId> ids = new HashSet<CasesRelatedBuildingDBId>();
-		mongoTemplate.executeQuery(query, "casesRelatedBuilding", new DocumentCallbackHandler() {
-			@Override
-			public void processDocument(Document document) throws MongoException, DataAccessException {
-				ids.add((CasesRelatedBuildingDBId) document.get("_id"));
-			}
-		});
+		List<Date> asOfDateList = mongoTemplate.findDistinct(query, "_id.asOfDate", CasesRelatedBuildingDB.class,
+				Date.class);
+		Set<Date> asOfDates = new HashSet<Date>();
+		Set<String> idSet = new HashSet<String>();
+		asOfDateList.forEach(d -> asOfDates.add(d));
 		for (CasesRelatedBuildingDB cObj : c) {
-			if (!ids.contains(cObj.getId()))
+			if (!asOfDates.contains(cObj.getAsOfDate()) && !idSet.contains(String.valueOf(cObj.getAsOfDate())+"_"+cObj.getBuildingName())) {
+				idSet.add(String.valueOf(cObj.getAsOfDate())+"_"+cObj.getBuildingName());
 				in.add(cObj);
+			}
 		}
 		Collection<CasesRelatedBuildingDB> r = mongoTemplate.insertAll(in);
 		return r;

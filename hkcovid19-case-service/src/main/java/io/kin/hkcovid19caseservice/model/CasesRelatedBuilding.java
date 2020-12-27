@@ -23,8 +23,8 @@ public class CasesRelatedBuilding {
 	}
 
 	public CasesRelatedBuildingDB toDBObj() {
-		CasesRelatedBuildingDB obj = new CasesRelatedBuildingDB(this.getAsOfDate(), this.getDistrict(),
-				this.getBuildingName(), this.lastDateOfResidenceOfTheCase, this.relatedCase, this.relatedCaseOth,
+		CasesRelatedBuildingDB obj = new CasesRelatedBuildingDB(this.getAsOfDate(), this.getDistrict().trim(),
+				this.getBuildingName().trim(), this.lastDateOfResidenceOfTheCase, this.relatedCase, this.relatedCaseOth,
 				this.noOfCase);
 		return obj;
 	}
